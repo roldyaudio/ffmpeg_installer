@@ -2,6 +2,7 @@ from lib_installer import *
 
 install_requirements_in_directory("C:/Apps/ffmpeg_installer")
 
+from time import time
 import os
 import subprocess
 import requests
@@ -51,9 +52,6 @@ def check_ffmpeg_installed():
         return False
 
 def main():
-
-
-
     url = "https://github.com/GyanD/codexffmpeg/releases/download/2025-07-01-git-11d1b71c31/ffmpeg-2025-07-01-git-11d1b71c31-full_build.zip"
     zip_path = "ffmpeg_full_build.zip"
     extract_dir = r"C:\ffmpeg"
@@ -81,3 +79,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    time.sleep(5)
