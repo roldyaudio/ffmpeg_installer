@@ -44,10 +44,6 @@ def install_requirements_in_directory(base_dir):
                     print(f":x: Error installing from {req_path}")
                     sys.exit(1)
 
-    # Comprobar si FFmpeg está instalado al final
-    if not check_ffmpeg_installed():
-        print("\033[91m Only FFmpeg is missing. Please install it to proceed. \033[0m")
-
 
 if __name__ == "__main__":
     # if sys.version_info >= (3, 13):
