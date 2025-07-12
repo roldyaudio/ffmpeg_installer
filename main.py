@@ -44,6 +44,47 @@ def add_to_user_path(new_path):
     print(f"✅ User PATH updated with: {new_path}")
     print("📝 Note: open a new CMD or PowerShell window for it to take effect.")
 
+def add_to_user_path_2(new_path):
+    import subprocess
+
+    # This function reads the actual persistent PATH stored in the Windows Registry
+    # (HKCU\Environment) instead of the current process PATH (os.environ),
+    # to make sure we don't add duplicates even across new terminal sessions.
+
+    # Query the user PATH from the Windows Registry
+    result = subprocess.run(
+        'reg query "HKCU\\Environment" /v PATH',
+        capture_output=True, text=True, shell=True
+    )
+
+    # If the PATH value doesn't exist yet, start from empty
+    if result.returncode != 0:
+        current_path = ""
+    else:
+        # Parse the output lines to find the PATH value
+        lines = result.stdout.splitlines()
+        for line in lines:
+            if "PATH" in line:
+                # Typically, line looks like: PATH    REG_EXPAND_SZ    C:\some\path;...
+                # So we split on multiple spaces and take the last part
+                current_path = line.split("    ")[-1].strip()
+                break
+        else:
+            current_path = ""
+
+    # Check if our new_path is already present (case-insensitive)
+    if new_path.lower() in current_path.lower():
+        print(f"✅ PATH already contains: {new_path}")
+        return
+
+    # If not present, append it using setx (which modifies the user PATH in the registry)
+    print(f"🔧 Adding {new_path} to the user PATH...")
+    command = f'setx PATH "{current_path};{new_path}"'
+    subprocess.run(command, shell=True)
+    print(f"✅ User PATH updated with: {new_path}")
+    print("📝 Note: open a new CMD or PowerShell window for it to take effect.")
+
+
 def check_ffmpeg_installed():
     try:
         subprocess.run(["ffmpeg", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -69,13 +110,16 @@ def main():
     # Look for bin directory
     bin_path = find_bin_path(extract_dir)
     if bin_path:
-        add_to_user_path(bin_path)
+        add_to_user_path_2(bin_path)
     else:
         print("⚠️ Could not find a directory with ffmpeg.exe and ffprobe.exe. Please check manually.")
 
     # Delete ZIP
     os.remove(zip_path)
-    print(f"🗑 ZIP file deleted.")
+    print(f"ZIP file deleted.")
+    print("ffmpeg installed")
+    
+
 
 if __name__ == "__main__":
     main()
