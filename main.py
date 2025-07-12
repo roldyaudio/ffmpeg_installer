@@ -42,7 +42,7 @@ def add_to_user_path(new_path):
     command = f'setx PATH "{current_path};{new_path}"'
     subprocess.run(command, shell=True)
     print(f"✅ User PATH updated with: {new_path}")
-    print("📝 Note: open a new CMD or PowerShell window for it to take effect.")
+    print("Note: open a new CMD or PowerShell window for it to take effect.")
 
 def add_to_user_path_2(new_path):
     import subprocess
@@ -78,11 +78,11 @@ def add_to_user_path_2(new_path):
         return
 
     # If not present, append it using setx (which modifies the user PATH in the registry)
-    print(f"🔧 Adding {new_path} to the user PATH...")
+    print(f"Adding {new_path} to the user PATH...")
     command = f'setx PATH "{current_path};{new_path}"'
     subprocess.run(command, shell=True)
     print(f"✅ User PATH updated with: {new_path}")
-    print("📝 Note: open a new CMD or PowerShell window for it to take effect.")
+    print("\x1b[0;36mNote: open a new CMD or PowerShell window for it to take effect\x1b[0m")
 
 
 def check_ffmpeg_installed():
@@ -117,7 +117,7 @@ def main():
     # Delete ZIP
     os.remove(zip_path)
     print(f"ZIP file deleted.")
-    print("ffmpeg installed")
+    print("\x1b[1;32mFfmpeg succesfully installed\x1b[0m")
     
 
 
