@@ -59,7 +59,7 @@ def add_to_user_path_2(new_path):
     command = f'setx PATH "{current_path};{new_path}"'
     subprocess.run(command, shell=True)
     print(f"✅ User PATH updated with: {new_path}")
-    print("\x1b[0;36mNote: open a new CMD or PowerShell window for it to take effect\x1b[0m")
+    # print("\x1b[0;36mNote: open a new CMD or PowerShell window for it to take effect\x1b[0m")
 
 def check_ffmpeg_installed():
     try:
