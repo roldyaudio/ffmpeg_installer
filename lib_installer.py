@@ -24,11 +24,6 @@ def check_ffmpeg_installed():
         return False
 
 
-import os
-import sys
-import subprocess
-import pkg_resources
-
 def install_requirements_in_directory(base_dir):
     """
     Walk through all folders inside base_dir looking for requirements.txt files.
