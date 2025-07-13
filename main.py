@@ -106,7 +106,7 @@ def main():
     print("ZIP file deleted.")
 
     print("\x1b[1;32mFfmpeg successfully installed\x1b[0m")
-    print("\x1b[0;36mNote: Re-run the App hub launcher to take effect.t\x1b[0m")
+    print("\x1b[0;36mNote: Re-run the App hub launcher to take effect.\x1b[0m")
 
 
 if __name__ == "__main__":
