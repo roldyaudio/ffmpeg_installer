@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import time
+import pkg_resources
 
 
 def ensure_pip():
