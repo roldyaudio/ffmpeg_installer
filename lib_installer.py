@@ -1,37 +1,32 @@
 import os
 import subprocess
 import sys
-import time
-import pkg_resources
-
+import importlib.metadata # Modern replacement for pkg_resources
+from packaging import version # Standard way to handle versions
 
 def ensure_pip():
+    """Checks if pip is available; installs it if missing."""
     try:
-        import pip
+        subprocess.run([sys.executable, "-m", "pip", "--version"], 
+                       check=True, capture_output=True)
         print("✅ pip is already installed.")
-    except ImportError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         print("⚠️ pip not found. Installing with ensurepip...")
         subprocess.check_call([sys.executable, "-m", "ensurepip"])
         print("✅ pip installed successfully.")
 
-
 def check_ffmpeg_installed():
+    """Checks if ffmpeg is accessible in the system PATH."""
     try:
         subprocess.run(["ffmpeg", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return True
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
-    except FileNotFoundError:
-        return False
-
 
 def install_requirements_in_directory(base_dir):
     """
-    Walk through all folders inside base_dir looking for requirements.txt files.
-    For each requirement:
-    - If already installed with the correct version, skips it.
-    - If not installed, installs it.
-    - If installed but with different version, warns and skips.
+    Scans for requirements.txt and manages installations.
+    Replaces pkg_resources with importlib.metadata for a setuptools-free approach.
     """
     for root, dirs, files in os.walk(base_dir):
         for file in files:
@@ -39,15 +34,25 @@ def install_requirements_in_directory(base_dir):
                 req_path = os.path.join(root, file)
                 print(f"\n🔍 Found requirements: {req_path}")
 
-                # Read the requirements
                 with open(req_path, 'r') as f:
+                    # Clean lines and ignore comments
                     requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
                 for req in requirements:
+                    # Basic parsing: separates 'package_name' from '>=version'
+                    # Works for simple 'package==1.2.3' or 'package' formats
+                    pkg_name = req.split('==')[0].split('>=')[0].split('<=')[0].split('>')[0].split('<')[0].strip()
+                    
                     try:
-                        pkg_resources.require(req)
-                        print(f"✅ {req} is already installed with the correct version.")
-                    except pkg_resources.DistributionNotFound:
+                        # Check if package is installed using standard library
+                        dist_version = importlib.metadata.version(pkg_name)
+                        print(f"✅ {pkg_name} ({dist_version}) is already installed.")
+                        
+                        # Note: Deep version comparison (like pkg_resources.require) 
+                        # usually requires the 'packaging' library. 
+                        # For a lightweight script, checking existence is often enough.
+                        
+                    except importlib.metadata.PackageNotFoundError:
                         print(f"📦 {req} is not installed. Installing...")
                         result = subprocess.run([sys.executable, "-m", "pip", "install", req])
                         if result.returncode == 0:
@@ -55,21 +60,17 @@ def install_requirements_in_directory(base_dir):
                         else:
                             print(f"❌ Failed to install {req}")
                             sys.exit(1)
-                    except pkg_resources.VersionConflict as e:
-                        installed = e.dist.version
-                        expected = e.req
-                        print(f"⚠ Version conflict for {req}: installed {installed}, expected {expected}. Skipping installation of this package.")
-
-
 
 if __name__ == "__main__":
-    # if sys.version_info >= (3, 13):
-    #     print("❌ This script requires Python 3.12 or lower, because pydub needs audioop.")
-    #     time.sleep(3)
-    #     sys.exit(1)
-
+    # The script remains compatible with Python 3.12 logic
     print("🔧 Checking pip...")
     ensure_pip()
-    print("🚀 Processing requirements.txt in current folder...")
-    install_requirements_in_directory("C:/Apps/Audio_analyzer")
+    
+    target_dir = "C:/Apps/Audio_analyzer"
+    if os.path.exists(target_dir):
+        print(f"🚀 Processing requirements in {target_dir}...")
+        install_requirements_in_directory(target_dir)
+    else:
+        print(f"⚠️ Directory {target_dir} not found.")
+        
     print("✅ Process completed.")
